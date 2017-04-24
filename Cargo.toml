@@ -1,0 +1,6 @@
+[package]
+name = "sync-memo"
+version = "0.1.0"
+authors = ["小飼慎一 <>"]
+
+[dependencies]
