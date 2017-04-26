@@ -12,6 +12,8 @@ extern crate hyper;
 mod github;
 
 fn main() {
-    let gists = github::get_own_gists("kogai");
+    let gists = github::get_gist("5c48d55cac77922fb1dd2162e48256f7");
+    let gist_created = github::create_gist();
     println!("{:?}", gists);
+    println!("{:?}", gist_created);
 } 

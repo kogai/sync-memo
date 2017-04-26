@@ -1,5 +1,6 @@
 use std::env;
-use std::io::Read;
+use std::collections::HashMap;
+
 use dotenv;
 use reqwest::Client;
 use hyper::header::{Authorization};
@@ -18,19 +19,62 @@ fn authorization() -> Authorization<String> {
     Authorization(format!("token {}", access_token))
 }
 
-pub fn get_own_gists(user_name: &str) -> String {
+#[derive(Debug, Serialize, Deserialize)]
+struct GistFile {
+    size: i32,
+    language: String,
+    content: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GistFiles {
+    files: HashMap<String, GistFile>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Content {
+    content: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CreateGist {
+    description: String,
+    public: bool,
+    files: HashMap<String, Content>,
+}
+
+pub fn create_gist() -> GistFiles {
     let http_client = Client::new().expect("Create HTTP client is failed");
-    let url = format!("{}/users/{}/gists", GITHUB_API, user_name);
-    let mut buffer = String::new();
+    let url = format!("{}/gists", GITHUB_API);
+    let mut files = HashMap::new();
+    files.insert("test.md".to_owned(), Content {
+        content: "test body.".to_owned(),
+    });
+    let request_body = CreateGist {
+        description: "this is test".to_owned(),
+        public: false,
+        files: files,
+    };
+
+    http_client
+        .post(url.as_str())
+        .header(authorization())
+        .json(&request_body)
+        .send()
+        .expect("send Request failed")
+        .json::<GistFiles>()
+        .expect("read response failed")
+}
+
+pub fn get_gist(gist_id: &str) -> GistFiles {
+    let http_client = Client::new().expect("Create HTTP client is failed");
+    let url = format!("{}/gists/{}", GITHUB_API, gist_id);
 
     http_client
         .get(url.as_str())
         .header(authorization())
         .send()
         .expect("send Request failed")
-        .read_to_string(&mut buffer)
-        .expect("read response failed");
-
-    println!("{}", buffer);
-    url
+        .json::<GistFiles>()
+        .expect("read response failed")
 }
