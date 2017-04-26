@@ -4,3 +4,4 @@ version = "0.1.0"
 authors = ["小飼慎一 <>"]
 
 [dependencies]
+config_file_handler = "0.6.0"
