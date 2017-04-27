@@ -66,12 +66,12 @@ pub fn create_gist() -> GistFiles {
         .expect("read response failed")
 }
 
-pub fn modify_gist(gist_id: &str) -> GistFiles {
+pub fn modify_gist(gist_id: &str, file_name: &str, contents: String) -> GistFiles {
     let http_client = Client::new().expect("Create HTTP client is failed");
     let url = format!("{}/gists/{}", GITHUB_API, gist_id);
     let mut files = HashMap::new();
-    files.insert("test.md".to_owned(), Content {
-        content: "test is updated.".to_owned(),
+    files.insert(file_name.to_owned(), Content {
+        content: contents,
     });
     let request_body = CreateGist {
         description: "this is update test".to_owned(),
