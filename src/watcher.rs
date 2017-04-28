@@ -10,6 +10,8 @@ use github;
 const INTERVAL: u64 = 10;
 
 pub fn watch(path: PathBuf, gist_id: &str) {
+    println!("watch: {}", gist_id);
+    
     let (tx, rx) = channel();
     let mut watcher = watcher(tx, Duration::from_secs(INTERVAL)).unwrap();
     let path_to_file = path.to_str().unwrap();
