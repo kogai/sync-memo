@@ -37,6 +37,7 @@ impl FileHandler {
           (&self.files)
             .iter()
             .map(|file| {
+                println!("watching file {}", &file.file_path);
                 scope.spawn(move || {
                     watcher::watch(file.file_path.to_owned(), &file.gist_id, channel());
                 })

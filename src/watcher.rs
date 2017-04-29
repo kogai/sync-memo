@@ -20,7 +20,7 @@ pub fn watch(path: String, gist_id: &str, (tx, rx): (Sender<DebouncedEvent>, Rec
                 let mut contents = String::new();
                 file.read_to_string(&mut contents).unwrap();
                 let gist_modified = github::modify_gist(gist_id,
-                                                        path_to_file,
+                                                        path.clone(),
                                                         contents);
                 println!("gist modified {:?}", gist_modified);
             }
