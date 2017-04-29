@@ -1,9 +1,12 @@
 use std::env;
 use std::collections::HashMap;
+use std::path::Path;
 
 use dotenv;
 use reqwest::Client;
 use hyper::header::{Authorization};
+
+use std::io::Read;
 
 const GITHUB_API: &'static str = "https://api.github.com";
 
@@ -20,7 +23,7 @@ fn authorization() -> Authorization<String> {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct GistFile {
+pub struct GistFile {
     size: i32,
     language: String,
     content: String,
@@ -28,7 +31,8 @@ struct GistFile {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GistFiles {
-    files: HashMap<String, GistFile>,
+    pub id: String,
+    pub files: HashMap<String, GistFile>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -43,19 +47,25 @@ pub struct CreateGist {
     files: HashMap<String, Content>,
 }
 
-pub fn create_gist() -> GistFiles {
+pub fn create_gist(file_name: String, content: String) -> GistFiles {
     let http_client = Client::new().expect("Create HTTP client is failed");
     let url = format!("{}/gists", GITHUB_API);
     let mut files = HashMap::new();
-    files.insert("test.md".to_owned(), Content {
-        content: "test body.".to_owned(),
-    });
+    let file_name_string = Path::new(&file_name)
+        .file_name()
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .to_string()
+        ;
+
+    files.insert(file_name_string, Content { content });
     let request_body = CreateGist {
-        description: "this is test".to_owned(),
+        description: "".to_owned(),
         public: false,
         files: files,
     };
-
+    
     http_client
         .post(url.as_str())
         .header(authorization())
