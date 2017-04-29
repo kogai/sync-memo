@@ -23,7 +23,7 @@ fn main() {
     let path = env::home_dir().and_then(|x| Some(x.join("sync-memo").join(".sync-memo-config.json"))).unwrap();
     let file_handler = handler::FileHandler::new(path);
 
-    let matches = App::new("syncm")
+    let matches = App::new("sync-memo")
         .version("0.0.1")
         .about("sync local memo files via gist")
         .subcommand(
