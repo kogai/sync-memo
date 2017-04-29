@@ -6,8 +6,6 @@ use dotenv;
 use reqwest::Client;
 use hyper::header::{Authorization};
 
-use std::io::Read;
-
 const GITHUB_API: &'static str = "https://api.github.com";
 
 fn authorization() -> Authorization<String> {

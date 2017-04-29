@@ -38,6 +38,10 @@ fn main() {
         .subcommand(
             SubCommand::with_name("watch")
             .about("watch files to sync")
+        )   
+        .subcommand(
+            SubCommand::with_name("show")
+            .about("show all gists")
         )
         .get_matches();
     
@@ -48,12 +52,15 @@ fn main() {
         }
     }
     
-//     let handlers = file_handler.watch_all_files();
-//    println!("watch start..."); 
-//     for h in handlers {
-//         println!("watch thread deliminated with {:?}", h.join());
-//     };
-
-    // let gists = github::get_gist("5c48d55cac77922fb1dd2162e48256f7");
-    // let gist_created = github::create_gist();
+    if let Some(_) = matches.subcommand_matches("watch") {
+        let handlers = file_handler.watch_all_files();
+        for h in handlers {
+            println!("watch thread deliminated with {:?}", h.join());
+        };
+    }
+         
+    if let Some(_) = matches.subcommand_matches("show") {
+        let gists = github::get_gist("");
+        println!("{:?}", gists);
+    }
 } 

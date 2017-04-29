@@ -53,13 +53,15 @@ impl FileHandler {
         
         let mut setting_buffer = String::new();
         let mut setting_file = File::open(&self.path_to_setting).unwrap();
-        let mut saved_files = serde_json::from_str::<Vec<WatchFile>>(&mut setting_buffer).unwrap();
+        setting_file.read_to_string(&mut setting_buffer).unwrap();
+        let mut saved_files = serde_json::from_str::<Vec<WatchFile>>(&setting_buffer).unwrap();
+
         saved_files.push(WatchFile {
             gist_id: result.id,
             file_path,
         });
 
-        setting_file.write_all(
+        File::create(&self.path_to_setting).unwrap().write_all(
             serde_json::to_string_pretty(&saved_files)
                 .unwrap()
                 .as_bytes()

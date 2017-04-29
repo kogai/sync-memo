@@ -1,7 +1,14 @@
-[{
-  "gist_id": "0c410ee3dcdb1d709c281eb40c2e8396",
-  "file_path": "/Users/kogaishinichi/sync-memo/memo-1.md"
-}, {
-  "gist_id": "5c48d55cac77922fb1dd2162e48256f7",
-  "file_path": "/Users/kogaishinichi/TODO.md"
-}]
+[
+  {
+    "gist_id": "0c410ee3dcdb1d709c281eb40c2e8396",
+    "file_path": "/Users/kogaishinichi/sync-memo/memo-1.md"
+  },
+  {
+    "gist_id": "5c48d55cac77922fb1dd2162e48256f7",
+    "file_path": "/Users/kogaishinichi/TODO.md"
+  },
+  {
+    "gist_id": "5dfe53a850d0eb73ccb45103ef2aea5e",
+    "file_path": "/Users/kogaishinichi/sync-memo/memo-2.md"
+  }
+]
