@@ -2,6 +2,8 @@
 extern crate serde_derive;
 #[macro_use]
 extern crate clap;
+#[macro_use]
+extern crate log;
 
 extern crate dotenv;
 extern crate reqwest;
@@ -11,6 +13,9 @@ extern crate config_file_handler;
 extern crate hyper;
 extern crate notify;
 extern crate crossbeam;
+extern crate ipc_channel;
+extern crate daemonize;
+extern crate log4rs;
 
 mod github;
 mod watcher;
@@ -63,4 +68,4 @@ fn main() {
         let gists = github::get_gist("");
         println!("{:?}", gists);
     }
-} 
+}
