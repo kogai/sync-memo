@@ -1,4 +1,4 @@
-use std::path::{PathBuf};
+use std::path::PathBuf;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::sync::mpsc::channel;
@@ -28,21 +28,21 @@ impl FileHandler {
         let files = serde_json::from_str::<Vec<WatchFile>>(&buffer).unwrap();
         FileHandler {
             path_to_setting: path_to_setting.to_str().unwrap().to_owned(),
-            files,
+            files: files,
         }
     }
 
-    pub fn watch_all_files<'a>(&'a self) -> Vec<crossbeam::ScopedJoinHandle<()>>{
+    pub fn watch_all_files<'a>(&'a self) -> Vec<crossbeam::ScopedJoinHandle<()>> {
         crossbeam::scope(|scope| {
-          (&self.files)
-            .iter()
-            .map(|file| {
-                println!("watching file {}", &file.file_path);
-                scope.spawn(move || {
-                    watcher::watch(file.file_path.to_owned(), &file.gist_id, channel());
+            (&self.files)
+                .iter()
+                .map(|file| {
+                    println!("watching file {}", &file.file_path);
+                    scope.spawn(move || {
+                        watcher::watch(file.file_path.to_owned(), &file.gist_id, channel());
+                    })
                 })
-            })
-            .collect::<Vec<_>>()
+                .collect::<Vec<_>>()
         })
     }
 
@@ -51,7 +51,7 @@ impl FileHandler {
         let mut file = File::open(&file_path).unwrap();
         file.read_to_string(&mut buffer).unwrap();
         let result = github::create_gist(file_path.clone(), buffer);
-        
+
         let mut setting_buffer = String::new();
         let mut setting_file = File::open(&self.path_to_setting).unwrap();
         setting_file.read_to_string(&mut setting_buffer).unwrap();
@@ -59,13 +59,14 @@ impl FileHandler {
 
         saved_files.push(WatchFile {
             gist_id: result.id,
-            file_path,
+            file_path: file_path,
         });
 
-        File::create(&self.path_to_setting).unwrap().write_all(
-            serde_json::to_string_pretty(&saved_files)
+        File::create(&self.path_to_setting)
+            .unwrap()
+            .write_all(serde_json::to_string_pretty(&saved_files)
                 .unwrap()
-                .as_bytes()
-        ).unwrap();
+                .as_bytes())
+            .unwrap();
     }
 }
