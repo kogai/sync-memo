@@ -23,8 +23,13 @@ mod client;
 
 fn main() {
     let server = daemon::Daemon::new();
-    println!("{:?}", server);
-    server.listen();
+    // println!("{:?}", server);
+    std::thread::spawn(move || {
+        server.listen();
+    });
+    
+    let c = client::Client::new(); 
+    c.send(client::Command::Watch);
 }
 
 /*
