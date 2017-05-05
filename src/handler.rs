@@ -69,4 +69,8 @@ impl FileHandler {
                 .as_bytes())
             .unwrap();
     }
+
+    pub fn get_file_ids(&self) -> Vec<String> {
+        self.files.iter().map(|f| f.gist_id.to_owned()).collect()
+    }
 }
