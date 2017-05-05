@@ -37,6 +37,7 @@ fn main() {
         .subcommand(SubCommand::with_name("watch").about("start watcher daemon"))
         .subcommand(SubCommand::with_name("show").about("show all memo"))
         .subcommand(SubCommand::with_name("kill").about("kill watcher daemon"))
+        // TODO: remove command
         .get_matches();
 
     let c = client::Client::new();

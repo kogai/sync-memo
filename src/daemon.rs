@@ -35,9 +35,9 @@ impl Daemon {
                     let command = extract_command(&stream);
                     match command {
                         Add(file_names) => {
-                            // for file_name in file_names {
-                            //     file_handler.add_files(file_name);
-                            // }
+                            for file_name in file_names {
+                                self.file_handler.add_files(file_name);
+                            }
                         }
                         Show => {
                             let file_ids = self.file_handler.get_file_ids();
