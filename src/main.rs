@@ -12,17 +12,26 @@ extern crate hyper;
 extern crate notify;
 extern crate crossbeam;
 
-mod github;
-mod watcher;
-mod handler;
+// mod github;
+// mod watcher;
+// mod handler;
+mod daemon;
+mod client;
 
-use std::env;
-use clap::{App, Arg, SubCommand};
+// use std::env;
+// use clap::{App, Arg, SubCommand};
 
+fn main() {
+    let server = daemon::Daemon::new();
+    println!("{:?}", server);
+    server.listen();
+}
+
+/*
 fn main() {
     let path = env::home_dir()
         .and_then(|x| Some(x.join("sync-memo").join(".sync-memo-config.json")))
-        .unwrap();
+        .expect("setting file missing");
     let file_handler = handler::FileHandler::new(path);
 
     let matches = App::new("sync-memo")
@@ -56,3 +65,4 @@ fn main() {
         println!("{:?}", gists);
     }
 }
+*/
