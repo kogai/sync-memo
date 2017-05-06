@@ -28,6 +28,8 @@ impl Daemon {
 
     pub fn listen(&self) {
         println!("[SERVER]: Waiting for connection from client...");
+        self.file_handler.watch_all_files();
+
         for stream in self.listener.incoming() {
             match stream {
                 Ok(stream) => {
@@ -36,6 +38,7 @@ impl Daemon {
                     match command {
                         Add(file_names) => {
                             for file_name in file_names {
+                                // TODO: should add watch files or reflesh watch thread
                                 self.file_handler.add_files(file_name);
                             }
                         }
@@ -51,8 +54,7 @@ impl Daemon {
                         Kill => exit(1),
                     };
                     // TODO: should it send response result to client?
-                    // let response = create_response(&request_headers);
-                    // stream.write_all(response.as_slice()).unwrap();
+                    // stream.write_all(b"response payload").unwrap();
                 }
                 Err(e) => println!("{:?}", e),
             }

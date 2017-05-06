@@ -2,18 +2,17 @@ use std::path::PathBuf;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::sync::mpsc::channel;
+use std::thread::{spawn, JoinHandle};
 
-use crossbeam;
 use serde_json;
 use watcher;
 use github;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct WatchFile {
     gist_id: String,
     file_path: String,
 }
-
 #[derive(Debug)]
 pub struct FileHandler {
     path_to_setting: String,
@@ -32,18 +31,16 @@ impl FileHandler {
         }
     }
 
-    pub fn watch_all_files<'a>(&'a self) -> Vec<crossbeam::ScopedJoinHandle<()>> {
-        crossbeam::scope(|scope| {
-            (&self.files)
-                .iter()
-                .map(|file| {
-                    println!("watching file {}", &file.file_path);
-                    scope.spawn(move || {
-                        watcher::watch(file.file_path.to_owned(), &file.gist_id, channel());
-                    })
+    pub fn watch_all_files(&self) -> Vec<JoinHandle<()>> {
+        (&self.files)
+            .iter()
+            .map(|file| {
+                let file = file.clone();
+                spawn(move || {
+                    watcher::watch(file.file_path.to_owned(), &file.gist_id, channel());
                 })
-                .collect::<Vec<_>>()
-        })
+            })
+            .collect()
     }
 
     pub fn add_files(&self, file_path: String) {

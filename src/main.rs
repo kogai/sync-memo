@@ -37,18 +37,15 @@ fn main() {
         .subcommand(SubCommand::with_name("watch").about("start watcher daemon"))
         .subcommand(SubCommand::with_name("show").about("show all memo"))
         .subcommand(SubCommand::with_name("kill").about("kill watcher daemon"))
-        // TODO: remove command
+        // TODO: add [remove] command
         .get_matches();
 
     let c = client::Client::new();
-    let server = daemon::Daemon::new(path.clone());
-    let h = std::thread::spawn(move || server.listen());
 
     match matches.subcommand() {
-        ("some", Some(_)) => {
-            println!("watch!");
+        ("watch", Some(_)) => {
             let server = daemon::Daemon::new(path);
-            std::thread::spawn(move || server.listen());
+            server.listen();
         }
         ("add", Some(sub_matches)) => {
             let file_names = values_t!(sub_matches.values_of("files"), String)
@@ -59,13 +56,4 @@ fn main() {
         ("kill", Some(_)) => c.send(client::Command::Kill),
         _ => {}
     };
-
-    h.join().unwrap();
-
-    // if let Some(_) = matches.subcommand_matches("watch") {
-    //     let handlers = file_handler.watch_all_files();
-    //     for h in handlers {
-    //         println!("watch thread deliminated with {:?}", h.join());
-    //     }
-    // }
 }
