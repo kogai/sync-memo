@@ -10,7 +10,6 @@ extern crate serde_json;
 extern crate config_file_handler;
 extern crate hyper;
 extern crate notify;
-extern crate crossbeam;
 
 mod github;
 mod watcher;
