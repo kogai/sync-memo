@@ -37,4 +37,6 @@ impl Client {
         // connection.read_to_end(&mut buffer).unwrap();
         // String::from_utf8(buffer).unwrap()
     }
+
+    // TODO: Enable to recieve notification from daemon process
 }

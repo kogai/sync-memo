@@ -49,11 +49,11 @@ impl Daemon {
                             let gists = file_ids.into_iter()
                                 .map(|id| get_gist(&id))
                                 .collect::<Vec<_>>();
-                            // TODO: pretifier result
-                            info!("results: {:?}", gists);
+                            for gist in &gists {
+                                info!("{}", gist);
+                            }
                         }
                         Kill => {
-                            // Perhaps it should read PID file and kill own process
                             info!("daemon killed");
                             exit(1);
                         }

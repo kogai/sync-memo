@@ -3,12 +3,12 @@ appenders:
   stdout:
     kind: console
     encoder:
-      pattern: "[{h({l})}] {d(%Y-%m-%d %H:%M:%S %Z)} | {m} | {M}/{f}{n}"
+      pattern: "[{h({l})}] {d(%Y-%m-%d %H:%M:%S %Z)} | {m} | {M}/{f}:{L}{n}"
   daemon:
     kind: file
     path: "log/daemon.log"
     encoder:
-      pattern: "[{h({l})}] {d(%Y-%m-%d %H:%M:%S %Z)} | {m} | {M}/{f}{n}"
+      pattern: "[{h({l})}] {d(%Y-%m-%d %H:%M:%S %Z)} | {m} | {M}/{f}:{L}{n}"
 root:
   level: info
   appenders:

@@ -1,6 +1,8 @@
 use std::env;
 use std::collections::HashMap;
 use std::path::Path;
+// use serde::export::fmt;
+use std::fmt::{Display, Formatter, Result};
 
 use dotenv;
 use reqwest::Client;
@@ -36,15 +38,25 @@ pub struct GistFiles {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum Gists {
-    Success {
-        id: String,
-        files: HashMap<String, GistFile>,
-    },
+pub enum GistResponse {
+    Success(GistFiles),
     NotFound {
         message: String,
-        documentation_url: String,
     },
+}
+
+impl Display for GistResponse {
+    fn fmt(&self, formatter: &mut Formatter) -> Result {
+        match self {
+            &GistResponse::Success(ref gist_files) => {
+                let gist_file_names = gist_files.files.iter().map(|(file_name, _)| file_name.to_owned()).collect::<Vec<_>>().join("/");
+                write!(formatter, "gist id: [{}] file name: [{}]", gist_files.id, gist_file_names)
+            },
+            &GistResponse::NotFound { ref message } => {
+                write!(formatter, "{}", message)
+            },
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -95,7 +107,7 @@ pub fn create_gist(path_to_file: String, content: String) -> GistFiles {
         .expect("read response failed")
 }
 
-pub fn modify_gist(gist_id: &str, file_name: String, contents: String) -> GistFiles {
+pub fn modify_gist(gist_id: &str, file_name: String, contents: String) -> GistResponse {
     let http_client = Client::new().expect("Create HTTP client is failed");
     let url = format!("{}/gists/{}", GITHUB_API, gist_id);
     let mut files = HashMap::new();
@@ -111,11 +123,11 @@ pub fn modify_gist(gist_id: &str, file_name: String, contents: String) -> GistFi
         .json(&request_body)
         .send()
         .expect("send Request failed")
-        .json::<GistFiles>()
+        .json::<GistResponse>()
         .expect("read response failed")
 }
 
-pub fn get_gist(gist_id: &str) -> Gists {
+pub fn get_gist(gist_id: &str) -> GistResponse {
     let http_client = Client::new().expect("Create HTTP client is failed");
     let url = format!("{}/gists/{}", GITHUB_API, gist_id);
 
@@ -123,6 +135,6 @@ pub fn get_gist(gist_id: &str) -> Gists {
         .header(authorization())
         .send()
         .expect("send Request failed")
-        .json::<Gists>()
+        .json::<GistResponse>()
         .expect("read response failed")
 }
