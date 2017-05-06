@@ -1,7 +1,6 @@
-#[macro_use]
-extern crate serde_derive;
-#[macro_use]
-extern crate clap;
+#[macro_use] extern crate serde_derive;
+#[macro_use] extern crate clap;
+#[macro_use] extern crate log;
 
 extern crate dotenv;
 extern crate reqwest;
@@ -10,7 +9,8 @@ extern crate serde_json;
 extern crate config_file_handler;
 extern crate hyper;
 extern crate notify;
-extern crate crossbeam;
+extern crate log4rs;
+extern crate daemonize;
 
 mod github;
 mod watcher;
@@ -20,8 +20,11 @@ mod client;
 
 use std::env;
 use clap::{App, Arg, SubCommand};
+use daemonize::Daemonize;
 
 fn main() {
+    log4rs::init_file("log_config.yaml", Default::default()).unwrap();
+
     let path = env::home_dir()
         .and_then(|x| Some(x.join("sync-memo").join(".sync-memo-config.json")))
         .expect("setting file missing");
@@ -38,14 +41,26 @@ fn main() {
         .subcommand(SubCommand::with_name("show").about("show all memo"))
         .subcommand(SubCommand::with_name("kill").about("kill watcher daemon"))
         // TODO: add [remove] command
+        // TODO: add [status] command
         .get_matches();
 
     let c = client::Client::new();
 
     match matches.subcommand() {
         ("watch", Some(_)) => {
-            let server = daemon::Daemon::new(path);
-            server.listen();
+            let daemonize = Daemonize::new()
+                .pid_file(daemon::PID_FILE)
+                .working_directory("/tmp")
+                .privileged_action(|| "Executed before drop privileges");
+            
+            match daemonize.start() {
+                Ok(_) => {
+                    info!("daemonized success");
+                    let server = daemon::Daemon::new(path);
+                    server.listen();
+                },
+                Err(error) => error!("{}", error),
+            }
         }
         ("add", Some(sub_matches)) => {
             let file_names = values_t!(sub_matches.values_of("files"), String)

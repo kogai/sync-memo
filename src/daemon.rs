@@ -10,6 +10,7 @@ use handler::FileHandler;
 use github::get_gist;
 
 pub const SOCKET_ADDR: &'static str = "/tmp/sync-memo.sock";
+pub const PID_FILE: &'static str = "/tmp/sync-memo.pid";
 
 #[derive(Debug)]
 pub struct Daemon {
@@ -27,7 +28,7 @@ impl Daemon {
     }
 
     pub fn listen(&self) {
-        println!("[SERVER]: Waiting for connection from client...");
+        info!("Waiting for connection from client...");
         self.file_handler.watch_all_files();
 
         for stream in self.listener.incoming() {
@@ -49,14 +50,18 @@ impl Daemon {
                                 .map(|id| get_gist(&id))
                                 .collect::<Vec<_>>();
                             // TODO: pretifier result
-                            println!("results: {:?}", gists);
+                            info!("results: {:?}", gists);
                         }
-                        Kill => exit(1),
+                        Kill => {
+                            // Perhaps it should read PID file and kill own process
+                            info!("daemon killed");
+                            exit(1);
+                        },
                     };
                     // TODO: should it send response result to client?
                     // stream.write_all(b"response payload").unwrap();
                 }
-                Err(e) => println!("{:?}", e),
+                Err(e) => error!("{:?}", e),
             }
         }
     }
@@ -74,7 +79,7 @@ fn extract_command(stream: &UnixStream) -> Command {
                 }
             }
             Err(e) => {
-                println!("read line failed... {:?}", e);
+                error!("read line failed... {:?}", e);
                 break;
             }
         };
