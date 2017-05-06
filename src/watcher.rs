@@ -8,9 +8,12 @@ use github;
 
 const INTERVAL: u64 = 10;
 
+// TODO: move to handler mod
 pub fn watch(path: String,
              gist_id: &str,
              (tx, rx): (Sender<DebouncedEvent>, Receiver<DebouncedEvent>)) {
+    info!("watching file {}", &path);
+
     let mut watcher = watcher(tx, Duration::from_secs(INTERVAL)).unwrap();
     let path_to_file = path.as_str();
     watcher.watch(path_to_file, RecursiveMode::Recursive).unwrap();
