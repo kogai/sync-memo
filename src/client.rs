@@ -25,7 +25,7 @@ impl Client {
         let mut connection = match UnixStream::connect(self.socket) {
             Ok(socket) => socket,
             Err(e) => {
-                println!("{}", e);
+                error!("{}", e);
                 return ();
             }
         };

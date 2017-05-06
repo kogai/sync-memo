@@ -27,7 +27,7 @@ impl Daemon {
     }
 
     pub fn listen(&self) {
-        println!("[SERVER]: Waiting for connection from client...");
+        info!("Waiting for connection from client...");
         self.file_handler.watch_all_files();
 
         for stream in self.listener.incoming() {
@@ -49,14 +49,14 @@ impl Daemon {
                                 .map(|id| get_gist(&id))
                                 .collect::<Vec<_>>();
                             // TODO: pretifier result
-                            println!("results: {:?}", gists);
+                            info!("results: {:?}", gists);
                         }
                         Kill => exit(1),
                     };
                     // TODO: should it send response result to client?
                     // stream.write_all(b"response payload").unwrap();
                 }
-                Err(e) => println!("{:?}", e),
+                Err(e) => error!("{:?}", e),
             }
         }
     }
@@ -74,7 +74,7 @@ fn extract_command(stream: &UnixStream) -> Command {
                 }
             }
             Err(e) => {
-                println!("read line failed... {:?}", e);
+                error!("read line failed... {:?}", e);
                 break;
             }
         };

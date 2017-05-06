@@ -22,10 +22,10 @@ pub fn watch(path: String,
                 let mut contents = String::new();
                 file.read_to_string(&mut contents).unwrap();
                 let gist_modified = github::modify_gist(gist_id, path.clone(), contents);
-                println!("gist modified {:?}", gist_modified);
+                info!("gist modified {:?}", gist_modified);
             }
             Err(e) => {
-                println!("watch error: {:?}", e);
+                error!("watch error: {:?}", e);
                 watcher.unwatch(&path).unwrap();
                 break;
             }

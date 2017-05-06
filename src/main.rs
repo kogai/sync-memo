@@ -1,7 +1,6 @@
-#[macro_use]
-extern crate serde_derive;
-#[macro_use]
-extern crate clap;
+#[macro_use] extern crate serde_derive;
+#[macro_use] extern crate clap;
+#[macro_use] extern crate log;
 
 extern crate dotenv;
 extern crate reqwest;
@@ -10,6 +9,7 @@ extern crate serde_json;
 extern crate config_file_handler;
 extern crate hyper;
 extern crate notify;
+extern crate log4rs;
 
 mod github;
 mod watcher;
@@ -21,6 +21,8 @@ use std::env;
 use clap::{App, Arg, SubCommand};
 
 fn main() {
+    log4rs::init_file("log_config.yaml", Default::default()).unwrap();
+    
     let path = env::home_dir()
         .and_then(|x| Some(x.join("sync-memo").join(".sync-memo-config.json")))
         .expect("setting file missing");
