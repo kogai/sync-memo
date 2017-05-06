@@ -6,7 +6,7 @@ appenders:
     kind: file
     path: "log/daemon.log"
     encoder:
-      pattern: "{d} - {m}{n}"
+      pattern: "[{h({l})}] {d(%Y-%m-%d %H:%M:%S %Z)} | {m} | {M}/{f}{n}"
 root:
   level: info
   appenders:
