@@ -3,6 +3,8 @@ use std::fs;
 use std::io::{BufReader, BufRead};
 use std::process::exit;
 use std::path::PathBuf;
+use std::thread::spawn;
+
 use serde_json;
 
 use client::Command;
@@ -45,11 +47,14 @@ impl Daemon {
                         }
                         Show => {
                             let file_ids = self.file_handler.get_file_ids();
-                            // TODO: speed up with concurrent request
                             let gists = file_ids.into_iter()
-                                .map(|id| get_gist(&id))
+                                .map(|id| {
+                                    spawn(move || get_gist(&id))
+                                })
                                 .collect::<Vec<_>>();
-                            for gist in &gists {
+
+                            for gist in gists {
+                                let gist = gist.join().expect("something wrong with thread");
                                 info!("{}", gist);
                             }
                         }
