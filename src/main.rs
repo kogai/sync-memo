@@ -1,6 +1,9 @@
-#[macro_use] extern crate serde_derive;
-#[macro_use] extern crate clap;
-#[macro_use] extern crate log;
+#[macro_use]
+extern crate serde_derive;
+#[macro_use]
+extern crate clap;
+#[macro_use]
+extern crate log;
 
 extern crate dotenv;
 extern crate reqwest;
@@ -52,13 +55,13 @@ fn main() {
                 .pid_file(daemon::PID_FILE)
                 .working_directory("/tmp")
                 .privileged_action(|| "Executed before drop privileges");
-            
+
             match daemonize.start() {
                 Ok(_) => {
                     info!("daemonized success");
                     let server = daemon::Daemon::new(path);
                     server.listen();
-                },
+                }
                 Err(error) => error!("{}", error),
             }
         }

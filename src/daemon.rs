@@ -56,7 +56,7 @@ impl Daemon {
                             // Perhaps it should read PID file and kill own process
                             info!("daemon killed");
                             exit(1);
-                        },
+                        }
                     };
                     // TODO: should it send response result to client?
                     // stream.write_all(b"response payload").unwrap();
