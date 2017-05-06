@@ -10,6 +10,7 @@ use handler::FileHandler;
 use github::get_gist;
 
 pub const SOCKET_ADDR: &'static str = "/tmp/sync-memo.sock";
+pub const PID_FILE: &'static str = "/tmp/sync-memo.pid";
 
 #[derive(Debug)]
 pub struct Daemon {
@@ -51,7 +52,11 @@ impl Daemon {
                             // TODO: pretifier result
                             info!("results: {:?}", gists);
                         }
-                        Kill => exit(1),
+                        Kill => {
+                            // Perhaps it should read PID file and kill own process
+                            info!("daemon killed");
+                            exit(1);
+                        },
                     };
                     // TODO: should it send response result to client?
                     // stream.write_all(b"response payload").unwrap();

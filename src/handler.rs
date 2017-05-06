@@ -37,6 +37,7 @@ impl FileHandler {
             .map(|file| {
                 let file = file.clone();
                 spawn(move || {
+                    info!("watfhing file {}", &file.file_path);
                     watcher::watch(file.file_path.to_owned(), &file.gist_id, channel());
                 })
             })
