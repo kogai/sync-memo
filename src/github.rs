@@ -35,6 +35,19 @@ pub struct GistFiles {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum Gists {
+    Success {
+        id: String,
+        files: HashMap<String, GistFile>,
+    },
+    NotFound {
+        message: String,
+        documentation_url: String,
+    },
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 struct Content {
     content: String,
 }
@@ -102,7 +115,7 @@ pub fn modify_gist(gist_id: &str, file_name: String, contents: String) -> GistFi
         .expect("read response failed")
 }
 
-pub fn get_gist(gist_id: &str) -> GistFiles {
+pub fn get_gist(gist_id: &str) -> Gists {
     let http_client = Client::new().expect("Create HTTP client is failed");
     let url = format!("{}/gists/{}", GITHUB_API, gist_id);
 
@@ -110,6 +123,6 @@ pub fn get_gist(gist_id: &str) -> GistFiles {
         .header(authorization())
         .send()
         .expect("send Request failed")
-        .json::<GistFiles>()
+        .json::<Gists>()
         .expect("read response failed")
 }
