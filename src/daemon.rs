@@ -39,8 +39,8 @@ impl Daemon {
                     match command {
                         Add(file_names) => {
                             for file_name in file_names {
-                                // TODO: should add watch files or reflesh watch thread
-                                self.file_handler.add_files(file_name);
+                                let add_file = self.file_handler.add_file(file_name);
+                                self.file_handler.watch_file(add_file);
                             }
                         }
                         Show => {
