@@ -11,6 +11,43 @@ pub enum Command {
     Kill,
 }
 
+type LogLevel = &'static str;
+pub const LOG_INFO: LogLevel = "info";
+pub const LOG_ERROR: LogLevel = "error";
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum Response {
+    Info(String),
+    Error(String),
+}
+
+impl Response {
+    pub fn from_log_level(log_level: LogLevel, payload: String) -> Self {
+        match log_level {
+            LOG_INFO => Response::Info(payload),
+            _ => Response::Error(payload),
+        }
+    }
+
+    // TODO: Perhaps it can return &[u8]
+    pub fn to_chunk<'a>(&self) -> Vec<u8> {
+        serde_json::to_vec(self).expect("parse failed")
+    }
+
+    pub fn write_log(&self) {
+        match self {
+            &Response::Info(ref payload) => {
+                info!("{}", payload);
+                println!("{}", payload);
+            },
+            &Response::Error(ref payload) => {
+                error!("{}", payload);
+                println!("{}", payload);
+            }
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Client {
     socket: &'static str,
