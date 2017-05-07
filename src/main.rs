@@ -71,7 +71,8 @@ fn main() {
             c.send(client::Command::Add(file_names));
         }
         ("show", Some(_)) => {
-            c.send(client::Command::Show);
+            let response = c.send(client::Command::Show);
+            response.write_log();
         }, 
         ("kill", Some(_)) => {
             let response = c.send(client::Command::Kill);

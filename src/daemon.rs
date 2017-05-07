@@ -47,16 +47,19 @@ impl Daemon {
                         }
                         Show => {
                             let file_ids = self.file_handler.get_file_ids();
-                            let gists = file_ids.into_iter()
+                            let gist_handlers = file_ids.into_iter()
                                 .map(|id| {
                                     spawn(move || get_gist(&id))
                                 })
                                 .collect::<Vec<_>>();
+                            
+                            let message = gist_handlers.into_iter().map(|handler| {
+                                let gist = handler.join().expect("something wrong with thread");
+                                format!("{}", gist)
+                            }).collect::<Vec<_>>().join("\n");
 
-                            for gist in gists {
-                                let gist = gist.join().expect("something wrong with thread");
-                                info!("{}", gist);
-                            }
+                            let response = Response::with_info(&message);
+                            stream.write_all(response.to_string().as_bytes()).expect("write in daemon");
                         }
                         Kill => {
                             let response = Response::with_info("daemon killed");
