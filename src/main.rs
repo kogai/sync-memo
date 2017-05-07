@@ -56,10 +56,13 @@ fn main() {
                 .working_directory("/tmp")
                 .privileged_action(|| "Executed before drop privileges");
 
+            let server = daemon::Daemon::new(path);
+            let response = server.get_watch_files();
+            response.write_log();
+            
             match daemonize.start() {
                 Ok(_) => {
                     info!("daemonized success");
-                    let server = daemon::Daemon::new(path);
                     server.listen();
                 }
                 Err(error) => error!("{}", error),
@@ -68,10 +71,17 @@ fn main() {
         ("add", Some(sub_matches)) => {
             let file_names = values_t!(sub_matches.values_of("files"), String)
                 .expect("path to files missing");
-            c.send(client::Command::Add(file_names))
+            let response = c.send(client::Command::Add(file_names));
+            response.write_log();
         }
-        ("show", Some(_)) => c.send(client::Command::Show), 
-        ("kill", Some(_)) => c.send(client::Command::Kill),
+        ("show", Some(_)) => {
+            let response = c.send(client::Command::Show);
+            response.write_log();
+        }, 
+        ("kill", Some(_)) => {
+            let response = c.send(client::Command::Kill);
+            response.write_log();
+        },
         _ => {}
     };
 }

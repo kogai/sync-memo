@@ -1,7 +1,6 @@
 use std::env;
 use std::collections::HashMap;
 use std::path::Path;
-// use serde::export::fmt;
 use std::fmt::{Display, Formatter, Result};
 
 use dotenv;
@@ -71,7 +70,7 @@ pub struct CreateGist {
     files: HashMap<String, Content>,
 }
 
-fn path_to_file_name(path_to_file: String) -> String {
+pub fn path_to_file_name(path_to_file: String) -> String {
     let file_name = Path::new(&path_to_file).file_name();
     match file_name {
         Some(n) => n.to_str().unwrap_or("").to_string(),
