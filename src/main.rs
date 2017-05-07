@@ -33,7 +33,7 @@ fn main() {
         .expect("setting file missing");
 
     let matches = App::new("sync-memo")
-        .version("0.1.0")
+        .version("0.1.1")
         .about("sync local memo files via gist")
         .subcommand(SubCommand::with_name("add")
             .about("add file to sync")
