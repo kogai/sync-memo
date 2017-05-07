@@ -1,13 +1,13 @@
 use std::os::unix::net::{UnixListener, UnixStream};
 use std::fs;
-use std::io::{BufReader, BufRead};
+use std::io::{Write, Read};
 use std::process::exit;
 use std::path::PathBuf;
 use std::thread::spawn;
 
 use serde_json;
 
-use client::Command;
+use client::{Command, Response};
 use handler::FileHandler;
 use github::get_gist;
 
@@ -35,9 +35,9 @@ impl Daemon {
 
         for stream in self.listener.incoming() {
             match stream {
-                Ok(stream) => {
+                Ok(mut stream) => {
                     use client::Command::*;
-                    let command = extract_command(&stream);
+                    let command = extract_command(&mut stream);
                     match command {
                         Add(file_names) => {
                             for file_name in file_names {
@@ -59,12 +59,11 @@ impl Daemon {
                             }
                         }
                         Kill => {
-                            info!("daemon killed");
+                            let response = Response::with_info("daemon killed");
+                            stream.write_all(response.to_string().as_bytes()).expect("write in daemon");
                             exit(1);
                         }
                     };
-                    // TODO: should it send response result to client?
-                    // stream.write_all(b"response payload").unwrap();
                 }
                 Err(e) => error!("{:?}", e),
             }
@@ -72,22 +71,23 @@ impl Daemon {
     }
 }
 
-fn extract_command(stream: &UnixStream) -> Command {
-    let mut stream_buf = BufReader::new(stream);
-    let mut recieve_buffer = String::new();
-
+fn extract_command(stream: &mut UnixStream) -> Command {
+    let mut buffer = [0; 1000];
     loop {
-        match stream_buf.read_line(&mut recieve_buffer) {
-            Ok(s) => {
-                if s == 0 {
-                    break;
-                }
-            }
-            Err(e) => {
-                error!("read line failed... {:?}", e);
+        match stream.read(&mut buffer) {
+            Ok(chunk_size) => {
+                println!("chunk size -> {}", chunk_size);
                 break;
             }
-        };
+            Err(error) => {
+                error!("read line failed... {:?}", error);
+                break;
+            }
+        }
     }
-    serde_json::from_str(&recieve_buffer).expect("parse failed")
+
+    let filtered = buffer.to_vec().into_iter().filter(|x| *x > 0).collect::<Vec<_>>();
+    let result = String::from_utf8(filtered).unwrap();
+
+    serde_json::from_str(&result).expect("parse failed")
 }

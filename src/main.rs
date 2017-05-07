@@ -68,10 +68,15 @@ fn main() {
         ("add", Some(sub_matches)) => {
             let file_names = values_t!(sub_matches.values_of("files"), String)
                 .expect("path to files missing");
-            c.send(client::Command::Add(file_names))
+            c.send(client::Command::Add(file_names));
         }
-        ("show", Some(_)) => c.send(client::Command::Show), 
-        ("kill", Some(_)) => c.send(client::Command::Kill),
+        ("show", Some(_)) => {
+            c.send(client::Command::Show);
+        }, 
+        ("kill", Some(_)) => {
+            let response = c.send(client::Command::Kill);
+            response.write_log();
+        },
         _ => {}
     };
 }

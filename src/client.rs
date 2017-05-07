@@ -1,4 +1,4 @@
-use std::io::Write;
+use std::io::{Read, Write};
 use std::os::unix::net::UnixStream;
 use serde_json;
 
@@ -22,27 +22,33 @@ pub enum Response {
 }
 
 impl Response {
-    pub fn from_log_level(log_level: LogLevel, payload: String) -> Self {
+    pub fn with_info(payload: &str) -> Self {
+        Response::with_log_level(LOG_INFO, payload)
+    }
+
+    pub fn with_error(payload: &str) -> Self {
+        Response::with_log_level(LOG_ERROR, payload)
+    }
+
+    pub fn with_log_level(log_level: LogLevel, payload: &str) -> Self {
         match log_level {
-            LOG_INFO => Response::Info(payload),
-            _ => Response::Error(payload),
+            LOG_INFO => Response::Info(payload.to_owned()),
+            _ => Response::Error(payload.to_owned()),
         }
     }
 
     // TODO: Perhaps it can return &[u8]
-    pub fn to_chunk<'a>(&self) -> Vec<u8> {
-        serde_json::to_vec(self).expect("parse failed")
+    pub fn to_string<'a>(&self) -> String {
+        serde_json::to_string(self).expect("parse failed")
     }
 
     pub fn write_log(&self) {
         match self {
             &Response::Info(ref payload) => {
                 info!("{}", payload);
-                println!("{}", payload);
             },
             &Response::Error(ref payload) => {
                 error!("{}", payload);
-                println!("{}", payload);
             }
         }
     }
@@ -58,29 +64,25 @@ impl Client {
         Client { socket: SOCKET_ADDR }
     }
 
-    pub fn send(&self, command: Command) {
+    pub fn send(&self, command: Command) -> Response {
         let mut connection = match UnixStream::connect(self.socket) {
             Ok(socket) => socket,
             Err(e) => {
                 error!("{}", e);
-                return ();
+                return Response::with_error(&format!("{}", e));
             }
         };
         let payload = serde_json::to_string(&command).expect("parse failed");
         connection.write_all(payload.as_bytes()).unwrap();
 
-        // TODO: perhaps it should handle response from daemon
-        // let mut buffer = Vec::new();
-        // connection.read_to_end(&mut buffer).unwrap();
-        // String::from_utf8(buffer).unwrap()
+        let mut buffer = Vec::new();
+        connection.read_to_end(&mut buffer).unwrap();
+        serde_json::from_slice(buffer.as_slice()).expect("parse response failed")
     }
-
-    // TODO: Enable to recieve notification from daemon process
 }
 
 mod tests {
     use super::*;
-    use std::io::*;
     use std::thread;
 
     #[test]
