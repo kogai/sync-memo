@@ -40,10 +40,15 @@ impl Daemon {
                     let command = extract_command(&mut stream);
                     match command {
                         Add(file_names) => {
+                            // TODO: recieve message when add file failed
+                            let message = file_names.iter().map(|name| format!("add file {}", name)).collect::<Vec<_>>().join("\n");
+                            
                             for file_name in file_names {
                                 let add_file = self.file_handler.add_file(file_name);
                                 self.file_handler.watch_file(add_file);
                             }
+                            let response = Response::with_info(&message);
+                            stream.write_all(response.to_string().as_bytes()).expect("write in daemon");
                         }
                         Show => {
                             let file_ids = self.file_handler.get_file_ids();
