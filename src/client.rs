@@ -77,3 +77,31 @@ impl Client {
 
     // TODO: Enable to recieve notification from daemon process
 }
+
+mod tests {
+    use super::*;
+    use std::io::*;
+    use std::thread;
+
+    #[test]
+    fn it_should_send_request_through_socket() {
+        let (mut client, mut server) = UnixStream::pair().unwrap();
+
+        let handler = thread::spawn(move || {
+            let mut buffer = [1; 20]; 
+            server.read(&mut buffer).expect("server couldnt read request");
+            let buffer = String::from_utf8(buffer.to_vec()).unwrap();
+            assert_eq!(buffer, "message from client\u{1}");
+
+            server.write_all(b"message from server").expect("server couldn't write request");
+        });
+
+        client.write_all(b"message from client").unwrap();
+
+        let mut buffer = String::new();
+        client.read_to_string(&mut buffer).expect("client couldnt read request");
+        assert_eq!(buffer, "message from server");
+        
+        handler.join().unwrap();
+    }
+}
