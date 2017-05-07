@@ -30,8 +30,6 @@ impl FileHandler {
             files: files,
         }
     }
-
-    // TODO: Perhaps is should return JoinHandle<Channel> to enable to send message
     pub fn watch_all_files(&self) -> Vec<JoinHandle<()>> {
         (&self.files)
             .iter()
@@ -41,7 +39,7 @@ impl FileHandler {
 
     pub fn watch_file(&self, add_file: WatchFile) -> JoinHandle<()> {
         spawn(move || {
-            watcher::watch(add_file.file_path.to_owned(), &add_file.gist_id, channel());
+            watcher::watch(&add_file.file_path.to_owned(), &add_file.gist_id, channel());
         })
     }
 
@@ -70,6 +68,10 @@ impl FileHandler {
             .unwrap();
 
         add_file
+    }
+
+    pub fn get_file_names(&self) -> Vec<String> {
+        self.files.iter().map(|f| f.file_path.to_owned()).map(github::path_to_file_name).collect()
     }
 
     pub fn get_file_ids(&self) -> Vec<String> {

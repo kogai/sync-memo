@@ -29,10 +29,19 @@ impl Daemon {
         }
     }
 
-    pub fn listen(&self) {
-        info!("Waiting for connection from client...");
-        self.file_handler.watch_all_files();
+    pub fn get_watch_files(&self) -> Response {
+        let message = self.file_handler
+            .get_file_names()
+            .iter()
+            .map(|name| format!("watching file {}", name)).collect::<Vec<_>>()
+            .join(" | ");
 
+        Response::with_info(&message)
+    }
+
+    pub fn listen(&self) {
+        self.file_handler.watch_all_files();
+        
         for stream in self.listener.incoming() {
             match stream {
                 Ok(mut stream) => {
@@ -61,7 +70,7 @@ impl Daemon {
                             let message = gist_handlers.into_iter().map(|handler| {
                                 let gist = handler.join().expect("something wrong with thread");
                                 format!("{}", gist)
-                            }).collect::<Vec<_>>().join("\n");
+                            }).collect::<Vec<_>>().join(" | ");
 
                             let response = Response::with_info(&message);
                             stream.write_all(response.to_string().as_bytes()).expect("write in daemon");

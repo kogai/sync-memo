@@ -56,10 +56,13 @@ fn main() {
                 .working_directory("/tmp")
                 .privileged_action(|| "Executed before drop privileges");
 
+            let server = daemon::Daemon::new(path);
+            let response = server.get_watch_files();
+            response.write_log();
+            
             match daemonize.start() {
                 Ok(_) => {
                     info!("daemonized success");
-                    let server = daemon::Daemon::new(path);
                     server.listen();
                 }
                 Err(error) => error!("{}", error),
