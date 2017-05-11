@@ -26,10 +26,14 @@ use clap::{App, Arg, SubCommand};
 use daemonize::Daemonize;
 
 fn main() {
-    log4rs::init_file("log_config.yaml", Default::default()).unwrap();
+    let log_config_path = env::home_dir()
+        .and_then(|x| Some(x.join(".sync-memo").join("log_config.yaml")))
+        .expect("log file missing");
+    
+    log4rs::init_file(log_config_path, Default::default()).unwrap();
 
     let path = env::home_dir()
-        .and_then(|x| Some(x.join("sync-memo").join(".sync-memo-config.json")))
+        .and_then(|x| Some(x.join(".sync-memo").join("setting.json")))
         .expect("setting file missing");
 
     let matches = App::new("sync-memo")
