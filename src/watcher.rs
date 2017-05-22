@@ -14,7 +14,9 @@ pub fn watch(path: &String,
              (tx, rx): (Sender<DebouncedEvent>, Receiver<DebouncedEvent>)) {
     let mut watcher = watcher(tx, Duration::from_secs(INTERVAL)).unwrap();
     let path_to_file = path.as_str();
-    watcher.watch(path_to_file, RecursiveMode::Recursive).unwrap();
+    watcher
+        .watch(path_to_file, RecursiveMode::Recursive)
+        .unwrap();
 
     loop {
         match rx.recv() {
@@ -33,3 +35,4 @@ pub fn watch(path: &String,
         }
     }
 }
+

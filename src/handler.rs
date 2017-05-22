@@ -39,8 +39,8 @@ impl FileHandler {
 
     pub fn watch_file(&self, add_file: WatchFile) -> JoinHandle<()> {
         spawn(move || {
-            watcher::watch(&add_file.file_path.to_owned(), &add_file.gist_id, channel());
-        })
+                  watcher::watch(&add_file.file_path.to_owned(), &add_file.gist_id, channel());
+              })
     }
 
     pub fn add_file(&self, file_path: String) -> WatchFile {
@@ -63,18 +63,23 @@ impl FileHandler {
         File::create(&self.path_to_setting)
             .unwrap()
             .write_all(serde_json::to_string_pretty(&saved_files)
-                .unwrap()
-                .as_bytes())
+                           .unwrap()
+                           .as_bytes())
             .unwrap();
 
         add_file
     }
 
     pub fn get_file_names(&self) -> Vec<String> {
-        self.files.iter().map(|f| f.file_path.to_owned()).map(github::path_to_file_name).collect()
+        self.files
+            .iter()
+            .map(|f| f.file_path.to_owned())
+            .map(github::path_to_file_name)
+            .collect()
     }
 
     pub fn get_file_ids(&self) -> Vec<String> {
         self.files.iter().map(|f| f.gist_id.to_owned()).collect()
     }
 }
+

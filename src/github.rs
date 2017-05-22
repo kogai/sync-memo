@@ -39,21 +39,25 @@ pub struct GistFiles {
 #[serde(untagged)]
 pub enum GistResponse {
     Success(GistFiles),
-    NotFound {
-        message: String,
-    },
+    NotFound { message: String },
 }
 
 impl Display for GistResponse {
     fn fmt(&self, formatter: &mut Formatter) -> Result {
         match self {
             &GistResponse::Success(ref gist_files) => {
-                let gist_file_names = gist_files.files.iter().map(|(file_name, _)| file_name.to_owned()).collect::<Vec<_>>().join("/");
-                write!(formatter, "gist id: [{}] file name: [{}]", gist_files.id, gist_file_names)
-            },
-            &GistResponse::NotFound { ref message } => {
-                write!(formatter, "{}", message)
-            },
+                let gist_file_names = gist_files
+                    .files
+                    .iter()
+                    .map(|(file_name, _)| file_name.to_owned())
+                    .collect::<Vec<_>>()
+                    .join("/");
+                write!(formatter,
+                       "gist id: [{}] file name: [{}]",
+                       gist_files.id,
+                       gist_file_names)
+            }
+            &GistResponse::NotFound { ref message } => write!(formatter, "{}", message),
         }
     }
 }
@@ -97,7 +101,8 @@ pub fn create_gist(path_to_file: String, content: String) -> GistFiles {
         files: files,
     };
 
-    http_client.post(url.as_str())
+    http_client
+        .post(url.as_str())
         .header(authorization())
         .json(&request_body)
         .send()
@@ -117,7 +122,8 @@ pub fn modify_gist(gist_id: &str, file_name: String, contents: String) -> GistRe
         files: files,
     };
 
-    http_client.patch(url.as_str())
+    http_client
+        .patch(url.as_str())
         .header(authorization())
         .json(&request_body)
         .send()
@@ -130,10 +136,12 @@ pub fn get_gist(gist_id: &str) -> GistResponse {
     let http_client = Client::new().expect("Create HTTP client is failed");
     let url = format!("{}/gists/{}", GITHUB_API, gist_id);
 
-    http_client.get(url.as_str())
+    http_client
+        .get(url.as_str())
         .header(authorization())
         .send()
         .expect("send Request failed")
         .json::<GistResponse>()
         .expect("read response failed")
 }
+

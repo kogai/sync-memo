@@ -46,7 +46,7 @@ impl Response {
         match self {
             &Response::Info(ref payload) => {
                 info!("{}", payload);
-            },
+            }
             &Response::Error(ref payload) => {
                 error!("{}", payload);
             }
@@ -90,20 +90,27 @@ mod tests {
         let (mut client, mut server) = UnixStream::pair().unwrap();
 
         let handler = thread::spawn(move || {
-            let mut buffer = [1; 20]; 
-            server.read(&mut buffer).expect("server couldnt read request");
+            let mut buffer = [1; 20];
+            server
+                .read(&mut buffer)
+                .expect("server couldnt read request");
             let buffer = String::from_utf8(buffer.to_vec()).unwrap();
             assert_eq!(buffer, "message from client\u{1}");
 
-            server.write_all(b"message from server").expect("server couldn't write request");
+            server
+                .write_all(b"message from server")
+                .expect("server couldn't write request");
         });
 
         client.write_all(b"message from client").unwrap();
 
         let mut buffer = String::new();
-        client.read_to_string(&mut buffer).expect("client couldnt read request");
+        client
+            .read_to_string(&mut buffer)
+            .expect("client couldnt read request");
         assert_eq!(buffer, "message from server");
-        
+
         handler.join().unwrap();
     }
 }
+
